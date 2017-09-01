@@ -1181,7 +1181,7 @@ func (t *ABC) getLineitemByExpDate(stub shim.ChaincodeStubInterface, args []stri
 	rows, err := stub.GetRows("ITEM", columns)
 	
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get the data for the status " + status + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get the data for the status " + ExpDate + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
