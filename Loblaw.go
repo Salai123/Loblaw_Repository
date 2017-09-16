@@ -299,6 +299,7 @@ func (t *ABC) Init(stub shim.ChaincodeStubInterface, function string, args []str
 	
 	
 		// setting up the increment 
+	stub.PutState("INVincrement", []byte("1"))
 	stub.PutState("ASNincrement", []byte("1"))
 	stub.PutState("DDRincrement", []byte("1"))
 	stub.PutState("GRMincrement", []byte("1"))
@@ -307,9 +308,9 @@ func (t *ABC) Init(stub shim.ChaincodeStubInterface, function string, args []str
 	
 		
 	// setting up the users role
+	stub.PutState("user_type1_3", []byte("PHARMACY"))
 	stub.PutState("user_type1_1", []byte("WARE_HOUSE"))
 	stub.PutState("user_type1_2", []byte("MEDTURN"))
-	stub.PutState("user_type1_3", []byte("DISPOSAL"))
 	stub.PutState("user_type1_4", []byte("MANUFACTURER"))
 
 
