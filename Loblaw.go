@@ -487,6 +487,147 @@ if len(args) < 8 {
 
 }
 
+//createNewASN to register a user
+func (t *ABC) createNewASN(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+if len(args) < 8 {
+			return nil, fmt.Errorf("Incorrect number of arguments. Expecting <8. Got: %d.", len(args))
+		}
+				
+		asnNumber:=args[0]
+		
+		//getting ASN incrementer
+		Avalbytes, err := stub.GetState("ASNincrement")
+		Aval, _ := strconv.ParseInt(string(Avalbytes), 10, 0)
+		newAval:=int(Aval) + 1
+		newASNincrement:= strconv.Itoa(newAval)
+		stub.PutState("ASNincrement", []byte(newASNincrement))
+		
+		asnUniqueid:=string(Avalbytes)
+		
+		createTimestamp:=args[1]
+		updateTimestamp:=args[2]
+		updatedBy:=args[3]
+		status:=args[4]
+		payload1:=args[5]
+		
+		//tempPay:=payload
+		
+		assignerOrg1, err := stub.GetState(args[6])
+		assignerOrg := string(assignerOrg1)
+		
+		createdBy:=assignerOrg
+		payload:=args[7]
+		//Privacy
+		if createdBy != "WARE_HOUSE" {
+			return nil, fmt.Errorf("You are not authorized to createNewASN")
+		}
+		
+		// Inserting ASN details
+		ok, err := stub.InsertRow("ASN", shim.Row{
+			Columns: []*shim.Column{
+				&shim.Column{Value: &shim.Column_String_{String_: asnNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: asnUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: createTimestamp}},
+				&shim.Column{Value: &shim.Column_String_{String_: updateTimestamp}},
+				&shim.Column{Value: &shim.Column_String_{String_: updatedBy}},
+				&shim.Column{Value: &shim.Column_String_{String_: status}},
+				&shim.Column{Value: &shim.Column_String_{String_: createdBy}},
+				&shim.Column{Value: &shim.Column_String_{String_: payload}},
+			}})
+
+		if err != nil {
+			return nil, err 
+		}
+		if !ok && err == nil {
+			return nil, errors.New("Row already exists.")
+		}
+		
+		//inserting item details
+	
+		payload=payload1
+		var itemArray []Item
+	
+		json.Unmarshal([]byte(payload), &itemArray)
+		
+		
+		for row := range itemArray {		
+					
+			lineItemId := safeValue(itemArray[row].LineItemId)
+			itemId := safeValue(itemArray[row].ItemId)
+			description := safeValue(itemArray[row].Description)
+			qty := safeValue(itemArray[row].Qty)
+			unit := safeValue(itemArray[row].Unit)
+			status := safeValue(itemArray[row].Status)
+			qtyReceivedAtMedturn := safeValue(itemArray[row].QtyReceivedAtMedturn)
+			qtyReceivedAtWarehouse := safeValue(itemArray[row].QtyReceivedAtWarehouse)
+			qtyReceivedAtDisposal := safeValue(itemArray[row].QtyReceivedAtDisposal)
+			qtyReceivedAtManufacturer := safeValue(itemArray[row].QtyReceivedAtManufacturer)
+			createTs := safeValue(itemArray[row].CreateTs)
+			updateTs := safeValue(itemArray[row].UpdateTs)
+			updatedBy := safeValue(itemArray[row].UpdatedBy)
+			remarks := safeValue(itemArray[row].Remarks)
+			boxBarcodeNumber := safeValue(itemArray[row].BoxBarcodeNumber)
+			debitMemo := safeValue(itemArray[row].DebitMemo)
+			lotNumber := safeValue(itemArray[row].LotNumber)
+			dc := safeValue(itemArray[row].Dc)
+			ndc := safeValue(itemArray[row].Ndc)
+			expDate := safeValue(itemArray[row].ExpDate)
+			purchageOrderNumber := safeValue(itemArray[row].PurchageOrderNumber)
+			asnUniqueid = asnUniqueid
+			ddrUniqueid := "NA"
+			grmUniqueid := "NA"
+			shUniqueid := "NA"
+			asnNumber =	asnNumber
+			mrrRequestNumber := "NA"
+					
+					
+			// Insert a row 
+			ok, err := stub.InsertRow("ITEM", shim.Row{
+			Columns: []*shim.Column{
+				&shim.Column{Value: &shim.Column_String_{String_: lineItemId}},
+				&shim.Column{Value: &shim.Column_String_{String_: itemId}},
+				&shim.Column{Value: &shim.Column_String_{String_: description}},
+				&shim.Column{Value: &shim.Column_String_{String_: qty}},
+				&shim.Column{Value: &shim.Column_String_{String_: unit}},
+				&shim.Column{Value: &shim.Column_String_{String_: status}},
+				&shim.Column{Value: &shim.Column_String_{String_: qtyReceivedAtMedturn}},
+				&shim.Column{Value: &shim.Column_String_{String_: qtyReceivedAtWarehouse}},
+				&shim.Column{Value: &shim.Column_String_{String_: qtyReceivedAtDisposal}},
+				&shim.Column{Value: &shim.Column_String_{String_: qtyReceivedAtManufacturer}},
+				&shim.Column{Value: &shim.Column_String_{String_: createTs}},
+				&shim.Column{Value: &shim.Column_String_{String_: updateTs}},
+				&shim.Column{Value: &shim.Column_String_{String_: updatedBy}},
+				&shim.Column{Value: &shim.Column_String_{String_: remarks}},
+				&shim.Column{Value: &shim.Column_String_{String_: boxBarcodeNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: debitMemo}},
+				&shim.Column{Value: &shim.Column_String_{String_: lotNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: dc}},
+				&shim.Column{Value: &shim.Column_String_{String_: ndc}},
+				&shim.Column{Value: &shim.Column_String_{String_: expDate}},
+				&shim.Column{Value: &shim.Column_String_{String_: purchageOrderNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: asnUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: ddrUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: grmUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: shUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: asnNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: mrrRequestNumber}},
+			}})
+
+		if err != nil {
+			return nil, err 
+		}
+		if !ok && err == nil {
+			return nil, errors.New("Row already exists.")
+		}
+					
+	}
+				
+		return nil, nil
+
+}
+
+
 
 // update LineItem status and record the transaction
 func (t *ABC) updateLineItem(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -1214,7 +1355,7 @@ func (t *ABC) getLineitemByExpDate(stub shim.ChaincodeStubInterface, args []stri
 	rows, err := stub.GetRows("ITEM", columns)
 	
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get the data for the status " + status + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get the data for the status " + ExpDate + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
