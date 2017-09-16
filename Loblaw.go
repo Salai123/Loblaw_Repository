@@ -168,11 +168,7 @@ func (t *ABC) Init(stub shim.ChaincodeStubInterface, function string, args []str
 	}
 	// Check if table already exists
 	
-	_, err := stub.GetTable("INV")
-	if err == nil {
-		// Table already exists; do not recreate
-		return nil, nil
-	}
+	
 
 	// Create application Table
 	err = stub.CreateTable("INV", []*shim.ColumnDefinition{
