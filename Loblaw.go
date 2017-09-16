@@ -1677,8 +1677,7 @@ func (t *ABC) Invoke(stub shim.ChaincodeStubInterface, function string, args []s
 	}else if function == "createNewINV" { 
 		t := ABC{}
 		return t.createNewINV(stub, args)
-	}
-	else if function == "updateLineItem" { 
+	}else if function == "updateLineItem" { 
 		t := ABC{}
 		return t.updateLineItem(stub, args)
 	}else if function == "updateASN" { 
