@@ -30,6 +30,16 @@ type Asn struct{
 	CreatedBy string `json:"createdBy"`
 }
 
+type INV struct{	
+	INVNumber string `json:"invNumber"`
+	INVUniqueid string `json:"invUniqueid"`
+	CreateTimestamp string `json:"createTimestamp"`
+	UpdateTimestamp string `json:"updateTimestamp"`
+	UpdatedBy string `json:"updatedBy"`
+	Status string `json:"status"`
+	CreatedBy string `json:"createdBy"`
+}
+
 
 
 // Item is for storing item details
@@ -64,6 +74,11 @@ type Item struct{
 //to store Asn with item
 type AsnItem struct{	
 	AsnDetail Asn  `json:"asnDetail"`
+	ItemDetail []Item `json:"itemDetail"`
+}
+
+type INVItem struct{	
+	INVDetail Asn  `json:"invDetail"`
 	ItemDetail []Item `json:"itemDetail"`
 }
 
@@ -141,6 +156,27 @@ func (t *ABC) Init(stub shim.ChaincodeStubInterface, function string, args []str
 	err = stub.CreateTable("ASN", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name: "asnNumber", Type: shim.ColumnDefinition_STRING, Key: true},
 		&shim.ColumnDefinition{Name: "asnUniqueid", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "createTimestamp", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "updateTimestamp", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "updatedBy", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "status", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "createdBy", Type: shim.ColumnDefinition_STRING, Key: false},
+		&shim.ColumnDefinition{Name: "payload", Type: shim.ColumnDefinition_STRING, Key: false},
+	})
+	if err != nil {
+		return nil, errors.New("Failed creating UserDetails.")
+	}
+	// Check if table already exists
+	_, err := stub.GetTable("INV")
+	if err == nil {
+		// Table already exists; do not recreate
+		return nil, nil
+	}
+
+	// Create application Table
+	err = stub.CreateTable("INV", []*shim.ColumnDefinition{
+		&shim.ColumnDefinition{Name: "invNumber", Type: shim.ColumnDefinition_STRING, Key: true},
+		&shim.ColumnDefinition{Name: "invUniqueid", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "createTimestamp", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "updateTimestamp", Type: shim.ColumnDefinition_STRING, Key: false},
 		&shim.ColumnDefinition{Name: "updatedBy", Type: shim.ColumnDefinition_STRING, Key: false},
@@ -315,22 +351,22 @@ func (t *ABC) probe(stub shim.ChaincodeStubInterface, args []string) ([]byte, er
 
 
 //createNewASN to register a user
-func (t *ABC) createNewASN(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *ABC) createNewINV(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 if len(args) < 8 {
 			return nil, fmt.Errorf("Incorrect number of arguments. Expecting <8. Got: %d.", len(args))
 		}
 				
-		asnNumber:=args[0]
+		invNumber:=args[0]
 		
 		//getting ASN incrementer
-		Avalbytes, err := stub.GetState("ASNincrement")
+		Avalbytes, err := stub.GetState("INVincrement")
 		Aval, _ := strconv.ParseInt(string(Avalbytes), 10, 0)
 		newAval:=int(Aval) + 1
-		newASNincrement:= strconv.Itoa(newAval)
-		stub.PutState("ASNincrement", []byte(newASNincrement))
+		newINVincrement:= strconv.Itoa(newAval)
+		stub.PutState("INVincrement", []byte(newINVincrement))
 		
-		asnUniqueid:=string(Avalbytes)
+		invUniqueid:=string(Avalbytes)
 		
 		createTimestamp:=args[1]
 		updateTimestamp:=args[2]
@@ -346,15 +382,15 @@ if len(args) < 8 {
 		createdBy:=assignerOrg
 		payload:=args[7]
 		//Privacy
-		if createdBy != "WARE_HOUSE" {
+		if createdBy != "PHARMACY" {
 			return nil, fmt.Errorf("You are not authorized to createNewASN")
 		}
 		
 		// Inserting ASN details
-		ok, err := stub.InsertRow("ASN", shim.Row{
+		ok, err := stub.InsertRow("INV", shim.Row{
 			Columns: []*shim.Column{
-				&shim.Column{Value: &shim.Column_String_{String_: asnNumber}},
-				&shim.Column{Value: &shim.Column_String_{String_: asnUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: invNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: invUniqueid}},
 				&shim.Column{Value: &shim.Column_String_{String_: createTimestamp}},
 				&shim.Column{Value: &shim.Column_String_{String_: updateTimestamp}},
 				&shim.Column{Value: &shim.Column_String_{String_: updatedBy}},
@@ -401,11 +437,11 @@ if len(args) < 8 {
 			ndc := safeValue(itemArray[row].Ndc)
 			expDate := safeValue(itemArray[row].ExpDate)
 			purchageOrderNumber := safeValue(itemArray[row].PurchageOrderNumber)
-			asnUniqueid = asnUniqueid
+			invUniqueid = invUniqueid
 			ddrUniqueid := "NA"
 			grmUniqueid := "NA"
 			shUniqueid := "NA"
-			asnNumber =	asnNumber
+			invNumber =	invNumber
 			mrrRequestNumber := "NA"
 					
 					
@@ -433,11 +469,11 @@ if len(args) < 8 {
 				&shim.Column{Value: &shim.Column_String_{String_: ndc}},
 				&shim.Column{Value: &shim.Column_String_{String_: expDate}},
 				&shim.Column{Value: &shim.Column_String_{String_: purchageOrderNumber}},
-				&shim.Column{Value: &shim.Column_String_{String_: asnUniqueid}},
+				&shim.Column{Value: &shim.Column_String_{String_: invUniqueid}},
 				&shim.Column{Value: &shim.Column_String_{String_: ddrUniqueid}},
 				&shim.Column{Value: &shim.Column_String_{String_: grmUniqueid}},
 				&shim.Column{Value: &shim.Column_String_{String_: shUniqueid}},
-				&shim.Column{Value: &shim.Column_String_{String_: asnNumber}},
+				&shim.Column{Value: &shim.Column_String_{String_: invNumber}},
 				&shim.Column{Value: &shim.Column_String_{String_: mrrRequestNumber}},
 			}})
 
@@ -1181,7 +1217,7 @@ func (t *ABC) getLineitemByExpDate(stub shim.ChaincodeStubInterface, args []stri
 	rows, err := stub.GetRows("ITEM", columns)
 	
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get the data for the status " + ExpDate + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get the data for the status " + status + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
@@ -1641,7 +1677,11 @@ func (t *ABC) Invoke(stub shim.ChaincodeStubInterface, function string, args []s
 	if function == "createNewASN" {
 		t := ABC{}
 		return t.createNewASN(stub, args)	
-	}else if function == "updateLineItem" { 
+	}else if function == "createNewINV" { 
+		t := ABC{}
+		return t.createNewINV(stub, args)
+	}
+	else if function == "updateLineItem" { 
 		t := ABC{}
 		return t.updateLineItem(stub, args)
 	}else if function == "updateASN" { 
