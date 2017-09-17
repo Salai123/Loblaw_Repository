@@ -442,8 +442,8 @@ if len(args) < 8 {
 			ddrUniqueid := "NA"
 			grmUniqueid := "NA"
 			shUniqueid := "NA"
-			invNumber =	invNumber
-			asnNumber = "NA"
+			invNumber :=	invNumber
+			asnNumber := "NA"
 			mrrRequestNumber := "NA"
 					
 					
@@ -1433,7 +1433,7 @@ func (t *ABC) getLineitemByinvno(stub shim.ChaincodeStubInterface, args []string
 	rows, err := stub.GetRows("ITEM", columns)
 	
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get the data for the status " + ExpDate + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get the data for the status " + invno + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
@@ -1469,9 +1469,9 @@ func (t *ABC) getLineitemByinvno(stub shim.ChaincodeStubInterface, args []string
 			itemdetails.Ndc = row.Columns[18].GetString_()
 			itemdetails.ExpDate = row.Columns[19].GetString_()
 			itemdetails.PurchageOrderNumber = row.Columns[20].GetString_()
-			itemdetails.invNumber = row.Columns[25].GetString_()
-			itemdetails.asnNumber = row.Columns[25].GetString_()
-			itemdetails.MrrRequestNumber = row.Columns[26].GetString_()
+			itemdetails.InvNumber = row.Columns[25].GetString_()
+			itemdetails.AsnNumber = row.Columns[26].GetString_()
+			itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
 			
 			itemArray.ItemDetail = append(itemArray.ItemDetail, itemdetails)
 		}
