@@ -78,8 +78,8 @@ type AsnItem struct{
 	ItemDetail []Item `json:"itemDetail"`
 }
 
-type INVItem struct{	
-	INVDetail Asn  `json:"invDetail"`
+type InvItem struct{	
+	InvDetail Inv  `json:"invDetail"`
 	ItemDetail []Item `json:"itemDetail"`
 }
 
@@ -1414,76 +1414,104 @@ func (t *ABC) getLineitemByExpDate(stub shim.ChaincodeStubInterface, args []stri
 //get getLineitemByinvno(irrespective of organization)
 func (t *ABC) getLineitemByinvno(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	if len(args) != 2 {
+if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 2 argument to query")
 	}
 
-	invno := args[0]
+	invNumber := args[0]
 	createdBy := args[1]
 	
 	fmt.Println(createdBy)
 	
-	
-	
-	
 	// Get the row pertaining to this ASN
 	var columns []shim.Column
-	
+	col1 := shim.Column{Value: &shim.Column_String_{String_: invNumber}}
+	columns = append(columns, col1)
 
-	rows, err := stub.GetRows("ITEM", columns)
-	
+	row, err := stub.GetRow("INV", columns)
 	if err != nil {
-		jsonResp := "{\"Error\":\"Failed to get the data for the status " + invno + "\"}"
+		jsonResp := "{\"Error\":\"Failed to get the data for the asnNumber " + invNumber + "\"}"
 		return nil, errors.New(jsonResp)
 	}
 
-	
-	var itemArray ItemArray
+	// GetRows returns empty message if key does not exist
+	if len(row.Columns) == 0 {
+		jsonResp := "{\"Error\":\"Failed to get the data for the asnNumber " + invNumber + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	//preparing ASN
+	var invitem InvItem
 	var itemdetails Item
-	itemArray.ItemDetail = make([]Item, 0)
+	invitem.ItemDetail = make([]Item, 0)
 	
-	for row := range rows {		
-		fetchedLineIteminvno := row.Columns[25].GetString_()
-		
-		if fetchedLineIteminvno == invno{
-			
-			
-			itemdetails.LineItemId = row.Columns[0].GetString_()
-			itemdetails.ItemId = row.Columns[1].GetString_()
-			itemdetails.Description = row.Columns[2].GetString_()
-			itemdetails.Qty = row.Columns[3].GetString_()
-			itemdetails.Unit = row.Columns[4].GetString_()
-			itemdetails.Status = row.Columns[5].GetString_()
-			itemdetails.QtyReceivedAtMedturn = row.Columns[6].GetString_()
-			itemdetails.QtyReceivedAtWarehouse = row.Columns[7].GetString_()
-			itemdetails.QtyReceivedAtDisposal = row.Columns[8].GetString_()
-			itemdetails.QtyReceivedAtManufacturer = row.Columns[9].GetString_()
-			itemdetails.CreateTs = row.Columns[10].GetString_()
-			itemdetails.UpdateTs = row.Columns[11].GetString_()
-			itemdetails.UpdatedBy = row.Columns[12].GetString_()
-			itemdetails.Remarks = row.Columns[13].GetString_()
-			itemdetails.BoxBarcodeNumber = row.Columns[14].GetString_()
-			itemdetails.DebitMemo = row.Columns[15].GetString_()
-			itemdetails.LotNumber = row.Columns[16].GetString_()
-			itemdetails.Dc = row.Columns[17].GetString_()
-			itemdetails.Ndc = row.Columns[18].GetString_()
-			itemdetails.ExpDate = row.Columns[19].GetString_()
-			itemdetails.PurchageOrderNumber = row.Columns[20].GetString_()
-			itemdetails.InvNumber = row.Columns[25].GetString_()
-			itemdetails.AsnNumber = row.Columns[26].GetString_()
-			itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
-			
-			itemArray.ItemDetail = append(itemArray.ItemDetail, itemdetails)
+	invitem.InvDetail.InvNumber = row.Columns[0].GetString_()
+	invitem.InvDetail.AsnUniqueid = row.Columns[1].GetString_()
+	invitem.InvDetail.CreateTimestamp = row.Columns[2].GetString_()
+	invitem.InvDetail.UpdateTimestamp = row.Columns[3].GetString_()
+	invitem.InvDetail.UpdatedBy = row.Columns[4].GetString_()
+	invitem.InvDetail.Status = row.Columns[5].GetString_()
+	invitem.InvDetail.CreatedBy = row.Columns[6].GetString_()
+	
+	payload:=row.Columns[7].GetString_()
+	
+	var items []string
+	json.Unmarshal([]byte(payload), &items)	
+	
+	
+	for row1 := range items {	
+
+		lineItemId:=items[row1]
+	
+		// Get the row pertaining to this ASN
+		var columns1 []shim.Column
+		col2 := shim.Column{Value: &shim.Column_String_{String_: lineItemId}}
+		columns1 = append(columns1, col2)
+
+		row, err = stub.GetRow("ITEM", columns1)
+		if err != nil {
+			jsonResp := "{\"Error\":\"Failed to get the data for the lineItemId " + lineItemId + "\"}"
+			return nil, errors.New(jsonResp)
 		}
+
+		// GetRows returns empty message if key does not exist
+		if len(row.Columns) == 0 {
+			jsonResp := "{\"Error\":\"Failed to get the data for the lineItemId " + lineItemId + "\"}"
+			return nil, errors.New(jsonResp)
+		}
+	
+		itemdetails.LineItemId = row.Columns[0].GetString_()
+		itemdetails.ItemId = row.Columns[1].GetString_()
+		itemdetails.Description = row.Columns[2].GetString_()
+		itemdetails.Qty = row.Columns[3].GetString_()
+		itemdetails.Unit = row.Columns[4].GetString_()
+		itemdetails.Status = row.Columns[5].GetString_()
+		itemdetails.QtyReceivedAtMedturn = row.Columns[6].GetString_()
+		itemdetails.QtyReceivedAtWarehouse = row.Columns[7].GetString_()
+		itemdetails.QtyReceivedAtDisposal = row.Columns[8].GetString_()
+		itemdetails.QtyReceivedAtManufacturer = row.Columns[9].GetString_()
+		itemdetails.CreateTs = row.Columns[10].GetString_()
+		itemdetails.UpdateTs = row.Columns[11].GetString_()
+		itemdetails.UpdatedBy = row.Columns[12].GetString_()
+		itemdetails.Remarks = row.Columns[13].GetString_()
+		itemdetails.BoxBarcodeNumber = row.Columns[14].GetString_()
+		itemdetails.DebitMemo = row.Columns[15].GetString_()
+		itemdetails.LotNumber = row.Columns[16].GetString_()
+		itemdetails.Dc = row.Columns[17].GetString_()
+		itemdetails.Ndc = row.Columns[18].GetString_()
+		itemdetails.ExpDate = row.Columns[19].GetString_()
+		itemdetails.PurchageOrderNumber = row.Columns[20].GetString_()
+		itemdetails.invNumber = row.Columns[25].GetString_()
+		itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
+		
+		asnitem.ItemDetail = append(invitem.ItemDetail, itemdetails)		
 	}
 		
-	
-    mapB, _ := json.Marshal(itemArray)
+    mapB, _ := json.Marshal(invitem)
     fmt.Println(string(mapB))
 	
 	return mapB, nil
-}
-
+}	
 //get getLineitemCountByStatus(irrespective of organization)
 func (t *ABC) getLineitemCountByStatus(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
