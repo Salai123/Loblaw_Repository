@@ -66,8 +66,8 @@ type Item struct{
 	Ndc string `json:"ndc"`
 	ExpDate string `json:"expDate"`
 	PurchageOrderNumber string `json:"purchageOrderNumber"`
-	invNumber string `json:"invNumber"`
-	asnNumber string `json:"asnNumber"`
+	InvNumber string `json:"invNumber"`
+	AsnNumber string `json:"asnNumber"`
 	MrrRequestNumber string `json:"mrrRequestNumber"`
 }
 
@@ -443,6 +443,7 @@ if len(args) < 8 {
 			grmUniqueid := "NA"
 			shUniqueid := "NA"
 			invNumber =	invNumber
+			asnNumber = "NA"
 			mrrRequestNumber := "NA"
 					
 					
@@ -1139,8 +1140,8 @@ func (t *ABC) getASNDetails(stub shim.ChaincodeStubInterface, args []string) ([]
 		itemdetails.Ndc = row.Columns[18].GetString_()
 		itemdetails.ExpDate = row.Columns[19].GetString_()
 		itemdetails.PurchageOrderNumber = row.Columns[20].GetString_()
-		itemdetails.AsnNumber = row.Columns[25].GetString_()
-		itemdetails.MrrRequestNumber = row.Columns[26].GetString_()
+		itemdetails.AsnNumber = row.Columns[26].GetString_()
+		itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
 		
 		asnitem.ItemDetail = append(asnitem.ItemDetail, itemdetails)		
 	}
