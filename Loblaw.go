@@ -30,9 +30,9 @@ type Asn struct{
 	CreatedBy string `json:"createdBy"`
 }
 
-type INV struct{	
-	INVNumber string `json:"invNumber"`
-	INVUniqueid string `json:"invUniqueid"`
+type Inv struct{	
+	InvNumber string `json:"invNumber"`
+	InvUniqueid string `json:"invUniqueid"`
 	CreateTimestamp string `json:"createTimestamp"`
 	UpdateTimestamp string `json:"updateTimestamp"`
 	UpdatedBy string `json:"updatedBy"`
@@ -442,7 +442,7 @@ if len(args) < 8 {
 			ddrUniqueid := "NA"
 			grmUniqueid := "NA"
 			shUniqueid := "NA"
-			invNumber :=	invNumber
+			invNumber := invNumber
 			asnNumber := "NA"
 			mrrRequestNumber := "NA"
 					
@@ -1504,7 +1504,7 @@ if len(args) != 2 {
 		itemdetails.invNumber = row.Columns[25].GetString_()
 		itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
 		
-		asnitem.ItemDetail = append(invitem.ItemDetail, itemdetails)		
+		invitem.ItemDetail = append(invitem.ItemDetail, itemdetails)		
 	}
 		
     mapB, _ := json.Marshal(invitem)
