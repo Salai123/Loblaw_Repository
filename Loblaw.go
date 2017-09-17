@@ -1446,7 +1446,7 @@ if len(args) != 2 {
 	invitem.ItemDetail = make([]Item, 0)
 	
 	invitem.InvDetail.InvNumber = row.Columns[0].GetString_()
-	invitem.InvDetail.AsnUniqueid = row.Columns[1].GetString_()
+	invitem.InvDetail.InvUniqueid = row.Columns[1].GetString_()
 	invitem.InvDetail.CreateTimestamp = row.Columns[2].GetString_()
 	invitem.InvDetail.UpdateTimestamp = row.Columns[3].GetString_()
 	invitem.InvDetail.UpdatedBy = row.Columns[4].GetString_()
@@ -1501,7 +1501,7 @@ if len(args) != 2 {
 		itemdetails.Ndc = row.Columns[18].GetString_()
 		itemdetails.ExpDate = row.Columns[19].GetString_()
 		itemdetails.PurchageOrderNumber = row.Columns[20].GetString_()
-		itemdetails.invNumber = row.Columns[25].GetString_()
+		itemdetails.InvNumber = row.Columns[25].GetString_()
 		itemdetails.MrrRequestNumber = row.Columns[27].GetString_()
 		
 		invitem.ItemDetail = append(invitem.ItemDetail, itemdetails)		
